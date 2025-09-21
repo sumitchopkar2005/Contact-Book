@@ -7,11 +7,11 @@ class ContactApp:
         self.myroot = myroot
         self.myroot.title("Contact Manager")
         self.contacts = []
-        # Background to gui
+        # Background to GUI
         myroot.configure(bg="purple")
 
         # Labels
-        Label(self.myroot, text="Name:", font=("Times new Roman", 12, "bold")).grid(row=0, column=0,padx=10, pady=5)
+        Label(self.myroot, text="Name:", font=("Times new Roman", 12, "bold")).grid(row=0, column=0, padx=10, pady=5)
         Label(self.myroot, text="Phone:", font=("Times new Roman", 12, "bold")).grid(row=1, column=0, padx=10, pady=5)
         Label(self.myroot, text="Email:", font=("Times new Roman", 12, "bold")).grid(row=2, column=0, padx=10, pady=5)
         Label(self.myroot, text="Birth Date :", font=("Times new Roman", 12, "bold")).grid(row=3, column=0, padx=10, pady=5)
@@ -20,7 +20,12 @@ class ContactApp:
         self.name_entry = Entry(self.myroot, bd=5, font=("Times new Roman", 10))
         self.phone_entry = Entry(self.myroot, bd=5, font=("Times new Roman", 10))
         self.email_entry = Entry(self.myroot, bd=5, font=("Times new Roman", 10))
-        self.birthdate_entry = Entry(self.myroot,bd=5, font=("Times new Roman", 10),placeholder="DD-MM-YYYY")
+        self.birthdate_entry = Entry(self.myroot, bd=5, font=("Times new Roman", 10))
+
+        # Add placeholder to birthdate
+        self.birthdate_entry.insert(0, "DD-MM-YYYY")
+        self.birthdate_entry.bind("<FocusIn>", self.clear_placeholder)
+        self.birthdate_entry.bind("<FocusOut>", self.add_placeholder)
 
         self.name_entry.grid(row=0, column=1, padx=10, pady=5)
         self.phone_entry.grid(row=1, column=1, padx=10, pady=5)
@@ -28,16 +33,31 @@ class ContactApp:
         self.birthdate_entry.grid(row=3, column=1, padx=10, pady=5)
 
         # Buttons
-        Button(self.myroot, text="Add Contact", command=self.add_contact, bg="red", fg="white", font=("Times new Roman", 15,"bold"), bd=6, padx=43, pady=10).grid(row=4, column=0,columnspan=2, pady=10)
-        Button(self.myroot, text="Search Contact", command=self.search_contact, bg="blue", fg="white", font=("Times new Roman", 15,"bold"), bd=6, padx=30, pady=10).grid(row=5, column=0, columnspan=2, pady=10)
-        Button(self.myroot, text="Update Contact", command=self.update_contact, bg="green", fg="white",font=("Times new Roman", 15,"bold"), bd=6, padx=30, pady=10).grid(row=6, column=0, columnspan=2, pady=10)
-        Button(self.myroot, text="Delete Contact", command=self.delete_contact, bg="yellow", fg="black", font=("Times new Roman", 15,"bold"), bd=6, padx=33, pady=10).grid(row=7, column=0, columnspan=2, pady=10)
-        Button(self.myroot, text="View Contacts", command=self.view_contacts, bg="orange", fg="black", font=("Times new Roman", 15,"bold"), bd=6, padx=33, pady=10).grid(row=8, column=0, columnspan=2, pady=10)
+        Button(self.myroot, text="Add Contact", command=self.add_contact, bg="red", fg="white",
+               font=("Times new Roman", 15, "bold"), bd=6, padx=43, pady=10).grid(row=4, column=0, columnspan=2, pady=10)
+        Button(self.myroot, text="Search Contact", command=self.search_contact, bg="blue", fg="white",
+               font=("Times new Roman", 15, "bold"), bd=6, padx=30, pady=10).grid(row=5, column=0, columnspan=2, pady=10)
+        Button(self.myroot, text="Update Contact", command=self.update_contact, bg="green", fg="white",
+               font=("Times new Roman", 15, "bold"), bd=6, padx=30, pady=10).grid(row=6, column=0, columnspan=2, pady=10)
+        Button(self.myroot, text="Delete Contact", command=self.delete_contact, bg="yellow", fg="black",
+               font=("Times new Roman", 15, "bold"), bd=6, padx=33, pady=10).grid(row=7, column=0, columnspan=2, pady=10)
+        Button(self.myroot, text="View Contacts", command=self.view_contacts, bg="orange", fg="black",
+               font=("Times new Roman", 15, "bold"), bd=6, padx=33, pady=10).grid(row=8, column=0, columnspan=2, pady=10)
 
         # Listbox to display sorted contacts
         self.sorted_listbox = Listbox(self.myroot, font=("Times new Roman", 14), bg="white", fg="black", bd=10, relief=SUNKEN)
         self.sorted_listbox.grid(row=9, column=0, columnspan=3, pady=20)
 
+    # ----- Placeholder functions -----
+    def clear_placeholder(self, event):
+        if self.birthdate_entry.get() == "DD-MM-YYYY":
+            self.birthdate_entry.delete(0, END)
+
+    def add_placeholder(self, event):
+        if self.birthdate_entry.get() == "":
+            self.birthdate_entry.insert(0, "DD-MM-YYYY")
+
+    # ----- Contact management functions -----
     def add_contact(self):
         name = self.name_entry.get()
         phone = self.phone_entry.get()
@@ -59,7 +79,8 @@ class ContactApp:
 
         for contact in self.contacts:
             if contact["Name"] == name:
-                messagebox.showinfo("Contact Found", f"Name: {contact['Name']}\nPhone: {contact['Phone']}\nEmail: {contact['Email']}\nBirth Date: {contact['Birthdate']}")
+                messagebox.showinfo("Contact Found",
+                                    f"Name: {contact['Name']}\nPhone: {contact['Phone']}\nEmail: {contact['Email']}\nBirth Date: {contact['Birthdate']}")
                 return
 
         messagebox.showerror("Contact Not Found", f"No contact found with the name {name}.")
@@ -106,29 +127,31 @@ class ContactApp:
             contacts_info += f"Name: {contact['Name']}\nPhone: {contact['Phone']}\nEmail: {contact['Email']}\nBirth Date: {contact['Birthdate']}\n\n"
 
         messagebox.showinfo("Contacts", contacts_info)
-        
+
     def is_valid_date(self, date_str):
         try:
             datetime.strptime(date_str, "%d-%m-%Y")
             return True
         except ValueError:
             return False
-            
+
     def update_sorted_listbox(self):
-        self.sorted_listbox.delete(0, END) 
+        self.sorted_listbox.delete(0, END)
         for contact in self.contacts:
             self.sorted_listbox.insert(END, contact["Name"])
-    
+
     def clear_input_fields(self):
         self.name_entry.delete(0, END)
         self.phone_entry.delete(0, END)
         self.email_entry.delete(0, END)
-        self.birthdate_entry.delete(0, END)        
+        self.birthdate_entry.delete(0, END)
+        self.birthdate_entry.insert(0, "DD-MM-YYYY")  # Reset placeholder
 
     def show_message(self, title, message):
         messagebox.showinfo(title, message)
 
 
+# Run the app
 myroot = Tk()
 app = ContactApp(myroot)
 myroot.mainloop()
