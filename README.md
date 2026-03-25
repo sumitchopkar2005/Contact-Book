@@ -24,3 +24,11 @@ To run this application locally, you just need Python installed.
 1. **Clone the repository:**
    ```bash
    git clone [https://github.com/sumitchopkar2005/Contact-Book.git](https://github.com/sumitchopkar2005/Contact-Book.git)
+
+1. **Navigate to the directory:**
+   ```bash
+   cd Contact-Book
+   
+1. **Run the app:**
+   ```bash
+   python Contact_book.py
